@@ -2,14 +2,14 @@
 """Full research-kb evaluation with drift detection.
 
 Demonstrates:
-    1. Loading the 47-query golden set
+    1. Loading the 177-query golden set (14 domains)
     2. Running evaluation against research-kb
     3. Setting a baseline
     4. Running drift detection with statistical tests
 
 Requirements:
     - research-kb running (PostgreSQL + embeddings)
-    - Golden set at tests/fixtures/golden_research_kb.json
+    - Golden set at tests/fixtures/golden_research_kb_full.json
 
 Run:
     python examples/research_kb_eval.py
@@ -35,7 +35,7 @@ except ImportError:
 def main() -> None:
     """Run the research-kb evaluation demo."""
     fixtures_dir = Path(__file__).parent.parent / "tests" / "fixtures"
-    golden_path = fixtures_dir / "golden_research_kb.json"
+    golden_path = fixtures_dir / "golden_research_kb_full.json"
 
     if not golden_path.exists():
         print(f"Golden set not found: {golden_path}")

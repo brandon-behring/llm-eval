@@ -174,6 +174,18 @@ ir-eval baseline show golden-set-name                 # Show current baseline
 ir-eval history golden-set-name                       # Show baseline history
 ```
 
+## Ecosystem
+
+Part of the **Rigorous AI Engineering** ecosystem:
+
+| Project | Description |
+|---------|-------------|
+| **ir-eval** (this repo) | Statistical retrieval evaluation with drift detection |
+| [temporalcv](https://github.com/brandonmbehring-dev/temporalcv) | Temporal cross-validation with leakage detection |
+| [research-kb](https://github.com/brandonmbehring-dev/research-kb) | Graph-boosted semantic search for research literature |
+
+ir-eval ships with a 177-query golden set converted from research-kb's evaluation corpus, covering 14 research domains. See `examples/research_kb_eval.py` for the integration demo.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.

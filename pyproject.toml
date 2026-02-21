@@ -48,6 +48,7 @@ scipy = [
 ir-eval = "ir_eval.cli.main:app"
 
 [project.entry-points."ir_eval.adapters"]
+research-kb = "ir_eval_research_kb:ResearchKBAdapter"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ir_eval", "src/ir_eval_research_kb"]
