@@ -5,7 +5,7 @@
 ```
 Golden Set ─→ Adapter Protocol ─→ Runner ─→ EvalRun
                                       │
-                                      ├─→ Baseline Store (.llm-eval/baselines/)
+                                      ├─→ Baseline Store (.ir-eval/baselines/)
                                       ├─→ Drift Detector (statistical tests)
                                       ├─→ Reporters (console/markdown/JSON)
                                       └─→ CLI (Typer)
@@ -102,7 +102,7 @@ This avoids two failure modes:
 Register via entry points in `pyproject.toml`:
 
 ```toml
-[project.entry-points."llm_eval.adapters"]
+[project.entry-points."ir_eval.adapters"]
 my-adapter = "my_package:MyAdapter"
 ```
 

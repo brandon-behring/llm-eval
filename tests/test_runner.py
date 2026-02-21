@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from llm_eval.runner import run_evaluation
-from llm_eval.types import GoldenQuery, GoldenSet, RetrievedItem
+from ir_eval.runner import run_evaluation
+from ir_eval.types import GoldenQuery, GoldenSet, RetrievedItem
 
 
 class StubAdapter:
@@ -111,7 +111,7 @@ class TestRunEvaluation:
 
     def test_json_roundtrip(self, golden_small: GoldenSet, tmp_path) -> None:
         """Run should survive JSON serialization."""
-        from llm_eval.types import EvalRun
+        from ir_eval.types import EvalRun
 
         adapter = PerfectAdapter(golden_small)
         run = run_evaluation(golden_small, adapter, top_k=5)

@@ -1,11 +1,11 @@
-"""Retrieval adapter protocol for llm-eval.
+"""Retrieval adapter protocol for ir-eval.
 
 Any retrieval system (LangChain, LlamaIndex, Elasticsearch, custom) implements
-this protocol to be evaluated by llm-eval. The interface is deliberately
+this protocol to be evaluated by ir-eval. The interface is deliberately
 synchronous — async systems wrap with asyncio.run() internally.
 
 Adapters register via entry points:
-    [project.entry-points."llm_eval.adapters"]
+    [project.entry-points."ir_eval.adapters"]
     my_adapter = "my_package:MyAdapter"
 """
 
@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
-from llm_eval.types import RetrievedItem
+from ir_eval.types import RetrievedItem
 
 
 @runtime_checkable

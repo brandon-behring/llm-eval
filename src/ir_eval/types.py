@@ -1,4 +1,4 @@
-"""Core types for the llm-eval framework.
+"""Core types for the ir-eval framework.
 
 Defines the data model: golden sets, retrieval results, evaluation runs,
 baselines, and drift results. All types are immutable dataclasses with
@@ -241,6 +241,111 @@ class RetrievedItem:
             content=d.get("content"),
             metadata=d.get("metadata", {}),
         )
+
+
+# ---------------------------------------------------------------------------
+# Pre-computed result set (results-first evaluation path)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class ResultEntry:
+    """Pre-computed retrieval results for a single query.
+
+    Used with ``ResultSet`` to evaluate without a live retrieval adapter.
+
+    Args:
+        query: The query text (must match a GoldenQuery).
+        retrieved: Ranked list of retrieved items.
+    """
+
+    query: str
+    retrieved: tuple[RetrievedItem, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to dict."""
+        return {
+            "query": self.query,
+            "retrieved": [r.to_dict() for r in self.retrieved],
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> ResultEntry:
+        """Deserialize from dict."""
+        return cls(
+            query=d["query"],
+            retrieved=tuple(RetrievedItem.from_dict(r) for r in d["retrieved"]),
+        )
+
+
+@dataclass(frozen=True)
+class ResultSet:
+    """Pre-computed retrieval results for offline evaluation.
+
+    The primary ``ir-eval`` evaluation path.  Pipe your retrieval system's
+    output into a JSON file matching this schema, then run::
+
+        ir-eval evaluate results.json --golden golden.json
+
+    Args:
+        name: Identifier for this result set (e.g. "my-rag-v2").
+        results: One entry per query with ranked retrieval results.
+
+    Example JSON::
+
+        {
+            "name": "my-rag-v2",
+            "results": [
+                {
+                    "query": "instrumental variables",
+                    "retrieved": [
+                        {"id": "chunk_123", "rank": 1, "score": 0.95},
+                        {"id": "chunk_456", "rank": 2, "score": 0.82}
+                    ]
+                }
+            ]
+        }
+    """
+
+    name: str
+    results: tuple[ResultEntry, ...]
+
+    def __post_init__(self) -> None:
+        if not self.results:
+            raise ValueError("ResultSet must contain at least one entry")
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to dict."""
+        return {
+            "name": self.name,
+            "results": [r.to_dict() for r in self.results],
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> ResultSet:
+        """Deserialize from dict."""
+        return cls(
+            name=d["name"],
+            results=tuple(ResultEntry.from_dict(r) for r in d["results"]),
+        )
+
+    @classmethod
+    def from_json(cls, path: Path) -> ResultSet:
+        """Load from JSON file."""
+        with open(path) as f:
+            return cls.from_dict(json.load(f))
+
+    def to_json(self, path: Path) -> None:
+        """Write to JSON file."""
+        with open(path, "w") as f:
+            json.dump(self.to_dict(), f, indent=2)
+
+    def lookup(self, query_text: str) -> list[RetrievedItem]:
+        """Get retrieved items for a query, or empty list if not found."""
+        for entry in self.results:
+            if entry.query == query_text:
+                return list(entry.retrieved)
+        return []
 
 
 # ---------------------------------------------------------------------------

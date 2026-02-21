@@ -9,7 +9,7 @@ import math
 
 import pytest
 
-from llm_eval.metrics.ranking import (
+from ir_eval.metrics.ranking import (
     aggregate_hit_rate,
     average_precision,
     hit_at_k,

@@ -17,15 +17,15 @@ Run:
 
 from pathlib import Path
 
-from llm_eval import GoldenSet
-from llm_eval.drift.baseline import BaselineStore
-from llm_eval.drift.detector import DriftDetector
-from llm_eval.reporters import console as console_reporter
-from llm_eval.runner import run_evaluation
+from ir_eval import GoldenSet
+from ir_eval.drift.baseline import BaselineStore
+from ir_eval.drift.detector import DriftDetector
+from ir_eval.reporters import console as console_reporter
+from ir_eval.runner import run_evaluation
 
 # Optional: only import if research-kb is available
 try:
-    from llm_eval_research_kb import ResearchKBAdapter
+    from ir_eval_research_kb import ResearchKBAdapter
 
     HAS_RESEARCH_KB = True
 except ImportError:

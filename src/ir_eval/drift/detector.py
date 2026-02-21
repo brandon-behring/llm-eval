@@ -10,7 +10,7 @@ Severity classification:
     - CRITICAL: >10% drop AND p < 0.05
 
 Usage:
-    from llm_eval.drift.detector import DriftDetector
+    from ir_eval.drift.detector import DriftDetector
 
     detector = DriftDetector()
     report = detector.detect(baseline_run, current_run)
@@ -18,12 +18,12 @@ Usage:
 
 from __future__ import annotations
 
-from llm_eval.metrics.confidence import (
+from ir_eval.metrics.confidence import (
     bootstrap_ci,
     mcnemar_test,
     paired_bootstrap_test,
 )
-from llm_eval.types import DriftResult, DriftSeverity, EvalRun
+from ir_eval.types import DriftResult, DriftSeverity, EvalRun
 
 
 class DriftDetector:

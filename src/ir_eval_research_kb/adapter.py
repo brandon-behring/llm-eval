@@ -1,8 +1,8 @@
-"""Research-kb retrieval adapter for llm-eval.
+"""Research-kb retrieval adapter for ir-eval.
 
 Wraps the research-kb hybrid search (FTS + vector) as a synchronous
-RetrievalAdapter. Uses asyncio.run() internally since research-kb
-is async.
+RetrievalAdapter. Maintains a persistent event loop internally since
+research-kb is async.
 
 Requirements:
     - research-kb packages on PYTHONPATH (storage, pdf-tools, common, contracts)
@@ -10,8 +10,8 @@ Requirements:
     - BGE-large embedding model accessible
 
 Usage:
-    from llm_eval_research_kb import ResearchKBAdapter
-    from llm_eval.runner import run_evaluation
+    from ir_eval_research_kb import ResearchKBAdapter
+    from ir_eval.runner import run_evaluation
 
     adapter = ResearchKBAdapter()
     run = run_evaluation(golden_set, adapter, top_k=10)
@@ -23,11 +23,14 @@ import asyncio
 import sys
 from pathlib import Path
 
-from llm_eval.types import RetrievedItem
+from ir_eval.types import RetrievedItem
 
 
 class ResearchKBAdapter:
-    """Adapter bridging research-kb search to llm-eval.
+    """Adapter bridging research-kb search to ir-eval.
+
+    Maintains a persistent asyncio event loop so that the connection pool
+    created during initialization remains valid for subsequent queries.
 
     Args:
         fts_weight: Full-text search weight (default 0.3).
@@ -44,6 +47,7 @@ class ResearchKBAdapter:
         self._fts_weight = fts_weight
         self._vector_weight = vector_weight
         self._initialized = False
+        self._loop: asyncio.AbstractEventLoop | None = None
 
         # Add research-kb packages to path
         root = research_kb_root or Path.home() / "Claude" / "research-kb"
@@ -52,8 +56,14 @@ class ResearchKBAdapter:
             if pkg_path not in sys.path:
                 sys.path.insert(0, pkg_path)
 
+    def _get_loop(self) -> asyncio.AbstractEventLoop:
+        """Get or create the persistent event loop."""
+        if self._loop is None or self._loop.is_closed():
+            self._loop = asyncio.new_event_loop()
+        return self._loop
+
     def _ensure_init(self) -> None:
-        """Lazy-initialize async resources."""
+        """Lazy-initialize async resources on a persistent event loop."""
         if not self._initialized:
             from research_kb_pdf import EmbeddingClient  # type: ignore[import-not-found]
             from research_kb_storage import (  # type: ignore[import-not-found]
@@ -64,10 +74,8 @@ class ResearchKBAdapter:
             self._embed_client = EmbeddingClient()
             self._db_config = DatabaseConfig()
 
-            async def _init() -> None:
-                await get_connection_pool(self._db_config)
-
-            asyncio.run(_init())
+            loop = self._get_loop()
+            loop.run_until_complete(get_connection_pool(self._db_config))
             self._initialized = True
 
     @property
@@ -87,7 +95,7 @@ class ResearchKBAdapter:
         """
         self._ensure_init()
 
-        from research_kb_storage import SearchQuery, search_hybrid  # noqa: F811
+        from research_kb_storage import SearchQuery, search_hybrid  # type: ignore[import-not-found]
 
         query_embedding = self._embed_client.embed_query(query)
 
@@ -99,7 +107,8 @@ class ResearchKBAdapter:
             limit=top_k,
         )
 
-        results = asyncio.run(search_hybrid(search_query))
+        loop = self._get_loop()
+        results = loop.run_until_complete(search_hybrid(search_query))
 
         return [
             RetrievedItem(
@@ -114,3 +123,13 @@ class ResearchKBAdapter:
             )
             for r in results
         ]
+
+    def close(self) -> None:
+        """Close the event loop and release resources."""
+        if self._loop is not None and not self._loop.is_closed():
+            self._loop.close()
+            self._loop = None
+        self._initialized = False
+
+    def __del__(self) -> None:
+        self.close()

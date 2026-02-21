@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from llm_eval.types import (
+from ir_eval.types import (
     Baseline,
     Difficulty,
     DriftResult,

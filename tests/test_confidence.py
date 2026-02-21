@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import pytest
 
-from llm_eval.metrics.confidence import (
+from ir_eval.metrics.confidence import (
     bootstrap_ci,
     fisher_exact_test,
     mcnemar_test,

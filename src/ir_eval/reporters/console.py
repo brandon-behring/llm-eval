@@ -11,7 +11,7 @@ from typing import Any
 from rich.console import Console
 from rich.table import Table
 
-from llm_eval.types import DriftResult, DriftSeverity, EvalRun
+from ir_eval.types import DriftResult, DriftSeverity, EvalRun
 
 
 def report_eval_run(run: EvalRun, console: Console | None = None) -> None:

@@ -15,7 +15,7 @@ from __future__ import annotations
 import sys
 from typing import Protocol
 
-from llm_eval.types import DriftResult, DriftSeverity
+from ir_eval.types import DriftResult, DriftSeverity
 
 
 class AlertSink(Protocol):
@@ -55,7 +55,7 @@ class ExitCodeAlert:
     """Exit with code 1 if any CRITICAL drift is detected.
 
     Designed for CI pipeline integration:
-        llm-eval drift --exit-code → exits 1 on critical regression.
+        ir-eval drift --exit-code → exits 1 on critical regression.
     """
 
     def process(self, drift_results: list[DriftResult]) -> None:

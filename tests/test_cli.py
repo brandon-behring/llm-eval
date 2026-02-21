@@ -6,13 +6,13 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from llm_eval.cli.main import app
+from ir_eval.cli.main import app
 
 runner = CliRunner()
 
 
 class TestValidateCommand:
-    """llm-eval validate <golden-set>."""
+    """ir-eval validate <golden-set>."""
 
     def test_validate_valid_file(self, golden_small_path: Path) -> None:
         result = runner.invoke(app, ["validate", str(golden_small_path)])
@@ -33,7 +33,7 @@ class TestValidateCommand:
 
 
 class TestHistoryCommand:
-    """llm-eval history <golden-set-name>."""
+    """ir-eval history <golden-set-name>."""
 
     def test_no_baselines(self, tmp_path: Path) -> None:
         result = runner.invoke(app, [
@@ -44,7 +44,7 @@ class TestHistoryCommand:
 
 
 class TestBaselineCommands:
-    """llm-eval baseline set/show."""
+    """ir-eval baseline set/show."""
 
     def test_set_and_show(self, sample_eval_run, tmp_path: Path) -> None:
 
@@ -79,7 +79,7 @@ class TestBaselineCommands:
 
 
 class TestCompareCommand:
-    """llm-eval compare <run-a> <run-b>."""
+    """ir-eval compare <run-a> <run-b>."""
 
     def test_compare_same_run(self, sample_eval_run, tmp_path: Path) -> None:
         path_a = tmp_path / "a.json"

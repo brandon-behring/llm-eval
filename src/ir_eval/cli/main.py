@@ -1,13 +1,13 @@
-"""CLI for llm-eval.
+"""CLI for ir-eval.
 
 Commands:
-    llm-eval run <golden-set> --adapter <name> [--top-k 10]
-    llm-eval baseline set <run-path> [--notes "..."]
-    llm-eval baseline show <golden-set-name>
-    llm-eval compare <run-a> <run-b> [--format console|markdown|json]
-    llm-eval drift <golden-set> --adapter <name> [--ci] [--exit-code]
-    llm-eval validate <golden-set>
-    llm-eval history <golden-set-name>
+    ir-eval run <golden-set> --adapter <name> [--top-k 10]
+    ir-eval baseline set <run-path> [--notes "..."]
+    ir-eval baseline show <golden-set-name>
+    ir-eval compare <run-a> <run-b> [--format console|markdown|json]
+    ir-eval drift <golden-set> --adapter <name> [--ci] [--exit-code]
+    ir-eval validate <golden-set>
+    ir-eval history <golden-set-name>
 """
 
 from __future__ import annotations
@@ -19,16 +19,16 @@ from typing import Annotated
 
 import typer
 
-from llm_eval.compare import compare_runs
-from llm_eval.drift.baseline import BaselineStore
-from llm_eval.drift.detector import DriftDetector
-from llm_eval.reporters import console as console_reporter
-from llm_eval.reporters import json_reporter
-from llm_eval.reporters import markdown as md_reporter
-from llm_eval.types import EvalRun, GoldenSet
+from ir_eval.compare import compare_runs
+from ir_eval.drift.baseline import BaselineStore
+from ir_eval.drift.detector import DriftDetector
+from ir_eval.reporters import console as console_reporter
+from ir_eval.reporters import json_reporter
+from ir_eval.reporters import markdown as md_reporter
+from ir_eval.types import EvalRun, GoldenSet, ResultSet
 
 app = typer.Typer(
-    name="llm-eval",
+    name="ir-eval",
     help="Statistical RAG evaluation framework with drift detection.",
     no_args_is_help=True,
 )
@@ -50,7 +50,7 @@ def _load_adapter(name: str):  # type: ignore[no-untyped-def]
         typer.Exit: If adapter not found.
     """
     try:
-        eps = importlib.metadata.entry_points(group="llm_eval.adapters")
+        eps = importlib.metadata.entry_points(group="ir_eval.adapters")
         for ep in eps:
             if ep.name == name:
                 adapter_cls = ep.load()
@@ -66,6 +66,39 @@ def _load_adapter(name: str):  # type: ignore[no-untyped-def]
 
 
 @app.command()
+def evaluate(
+    results_path: Annotated[Path, typer.Argument(help="Path to results JSON file")],
+    golden: Annotated[Path, typer.Option("--golden", help="Path to golden set file (JSON/YAML)")],
+    top_k: Annotated[int, typer.Option(help="Cutoff for metrics")] = 10,
+    output: Annotated[Path | None, typer.Option(help="Save run to JSON")] = None,
+    format: Annotated[str, typer.Option(help="Output format")] = "console",
+) -> None:
+    """Evaluate pre-computed retrieval results against a golden set.
+
+    This is the primary evaluation path — no live adapter needed.
+    Export your retrieval system's results to JSON, then evaluate::
+
+        ir-eval evaluate results.json --golden golden.json
+    """
+    from ir_eval.runner import evaluate_from_results
+
+    golden_set = GoldenSet.from_file(golden)
+    result_set = ResultSet.from_json(results_path)
+    eval_run = evaluate_from_results(golden_set, result_set, top_k=top_k)
+
+    if format == "json":
+        typer.echo(json_reporter.report_eval_run(eval_run))
+    elif format == "markdown":
+        typer.echo(md_reporter.report_eval_run(eval_run))
+    else:
+        console_reporter.report_eval_run(eval_run)
+
+    if output:
+        eval_run.to_json(output)
+        typer.echo(f"\nRun saved to: {output}")
+
+
+@app.command()
 def run(
     golden_set_path: Annotated[Path, typer.Argument(help="Path to golden set file (JSON/YAML)")],
     adapter: Annotated[str, typer.Option(help="Adapter name (entry point)")],
@@ -74,7 +107,7 @@ def run(
     format: Annotated[str, typer.Option(help="Output format")] = "console",
 ) -> None:
     """Run evaluation of a retrieval adapter against a golden set."""
-    from llm_eval.runner import run_evaluation
+    from ir_eval.runner import run_evaluation
 
     golden = GoldenSet.from_file(golden_set_path)
     retrieval_adapter = _load_adapter(adapter)
@@ -157,15 +190,15 @@ def drift(
     store_dir: Annotated[Path | None, typer.Option(help="Baseline store directory")] = None,
 ) -> None:
     """Run evaluation and compare against baseline for drift detection."""
-    from llm_eval.drift.alerts import ExitCodeAlert
-    from llm_eval.runner import run_evaluation
+    from ir_eval.drift.alerts import ExitCodeAlert
+    from ir_eval.runner import run_evaluation
 
     golden = GoldenSet.from_file(golden_set_path)
     store = BaselineStore(base_dir=store_dir)
     baseline = store.get_baseline(golden.name)
 
     if baseline is None:
-        typer.echo(f"No baseline found for '{golden.name}'. Run 'llm-eval baseline set' first.")
+        typer.echo(f"No baseline found for '{golden.name}'. Run 'ir-eval baseline set' first.")
         raise typer.Exit(1)
 
     retrieval_adapter = _load_adapter(adapter)
@@ -182,7 +215,7 @@ def drift(
         console_reporter.report_drift(results)
 
     if exit_code:
-        from llm_eval.drift.alerts import ExitCodeAlert
+        from ir_eval.drift.alerts import ExitCodeAlert
 
         ExitCodeAlert().process(results)
 

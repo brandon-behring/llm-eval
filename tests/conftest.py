@@ -1,4 +1,4 @@
-"""Shared test fixtures for llm-eval."""
+"""Shared test fixtures for ir-eval."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from llm_eval.types import (
+from ir_eval.types import (
     Difficulty,
     EvalRun,
     GoldenQuery,

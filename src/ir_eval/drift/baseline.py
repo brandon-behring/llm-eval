@@ -1,6 +1,6 @@
 """File-based baseline storage.
 
-Baselines are stored as JSON files in `.llm-eval/baselines/`.
+Baselines are stored as JSON files in `.ir-eval/baselines/`.
 Each golden set has at most one active baseline.
 
 Usage:
@@ -16,18 +16,18 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from llm_eval.types import Baseline, EvalRun
+from ir_eval.types import Baseline, EvalRun
 
 
 class BaselineStore:
     """File-based storage for evaluation baselines.
 
     Args:
-        base_dir: Directory for baseline files. Defaults to `.llm-eval/baselines/`.
+        base_dir: Directory for baseline files. Defaults to `.ir-eval/baselines/`.
     """
 
     def __init__(self, base_dir: Path | None = None) -> None:
-        self._base_dir = base_dir or Path(".llm-eval") / "baselines"
+        self._base_dir = base_dir or Path(".ir-eval") / "baselines"
 
     def _ensure_dir(self) -> None:
         """Create the baselines directory if needed."""

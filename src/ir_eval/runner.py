@@ -4,7 +4,7 @@ Loads a golden set, iterates queries through an adapter, computes
 per-query metrics, and aggregates into an EvalRun.
 
 Usage:
-    from llm_eval.runner import run_evaluation
+    from ir_eval.runner import run_evaluation
 
     run = run_evaluation(golden_set, adapter, top_k=10)
     print(run.metrics)
@@ -16,8 +16,8 @@ import time
 import uuid
 from datetime import UTC, datetime
 
-from llm_eval.adapter import RetrievalAdapter
-from llm_eval.metrics.ranking import (
+from ir_eval.adapter import RetrievalAdapter
+from ir_eval.metrics.ranking import (
     aggregate_hit_rate,
     average_precision,
     hit_at_k,
@@ -27,10 +27,11 @@ from llm_eval.metrics.ranking import (
     precision_at_k,
     reciprocal_rank,
 )
-from llm_eval.types import (
+from ir_eval.types import (
     EvalRun,
     GoldenSet,
     QueryResult,
+    ResultSet,
     RetrievedItem,
 )
 
@@ -140,4 +141,83 @@ def run_evaluation(
         query_results=tuple(query_results),
         metrics=aggregate,
         config={"top_k": top_k, "golden_set_version": golden_set.version},
+    )
+
+
+def evaluate_from_results(
+    golden_set: GoldenSet,
+    result_set: ResultSet,
+    *,
+    top_k: int = 10,
+) -> EvalRun:
+    """Evaluate pre-computed retrieval results against a golden set.
+
+    This is the primary ``ir-eval`` evaluation path: pipe your retrieval
+    system's output into a JSON file, load it as a ``ResultSet``, and
+    evaluate without needing a live adapter.
+
+    Args:
+        golden_set: The golden set with queries and known relevant docs.
+        result_set: Pre-computed retrieval results.
+        top_k: Cutoff for hit/precision metrics.
+
+    Returns:
+        EvalRun with per-query results and aggregate metrics.
+
+    Raises:
+        ValueError: If a golden query has no matching result in the result set.
+    """
+    query_results: list[QueryResult] = []
+
+    for golden_query in golden_set.queries:
+        relevant_ids = set(golden_query.relevant_ids)
+        grades = golden_query.relevance_grades if golden_query.relevance_grades else None
+
+        retrieved = result_set.lookup(golden_query.query)
+        if not retrieved:
+            raise ValueError(
+                f"No results found for query '{golden_query.query}' in result set '{result_set.name}'"
+            )
+
+        metrics = _evaluate_query(
+            query_text=golden_query.query,
+            relevant_ids=relevant_ids,
+            retrieved=retrieved,
+            top_k=top_k,
+            relevance_grades=grades,
+        )
+
+        qr = QueryResult(
+            query=golden_query,
+            retrieved=tuple(retrieved),
+            hit=bool(metrics["hit"]),
+            reciprocal_rank=float(metrics["reciprocal_rank"]),
+            ndcg=float(metrics["ndcg"]),
+            precision_at_k=float(metrics["precision_at_k"]),
+            average_precision=float(metrics["average_precision"]),
+        )
+        query_results.append(qr)
+
+    n = len(query_results) if query_results else 0
+    ndcg_avg = sum(qr.ndcg for qr in query_results) / n if n else 0.0
+    prec_avg = sum(qr.precision_at_k for qr in query_results) / n if n else 0.0
+
+    aggregate = {
+        "hit_rate": aggregate_hit_rate([qr.hit for qr in query_results]),
+        "mrr": mean_reciprocal_rank([qr.reciprocal_rank for qr in query_results]),
+        "ndcg_at_k": ndcg_avg,
+        "precision_at_k": prec_avg,
+        "map": mean_average_precision([qr.average_precision for qr in query_results]),
+    }
+
+    run_id = f"run-{uuid.uuid4().hex[:12]}"
+
+    return EvalRun(
+        id=run_id,
+        golden_set_name=golden_set.name,
+        adapter_name=result_set.name,
+        timestamp=datetime.now(UTC),
+        query_results=tuple(query_results),
+        metrics=aggregate,
+        config={"top_k": top_k, "golden_set_version": golden_set.version, "source": "result_set"},
     )

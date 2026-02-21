@@ -5,8 +5,8 @@ Run:
     python examples/quickstart.py
 """
 
-from llm_eval import GoldenQuery, GoldenSet, RetrievedItem
-from llm_eval.runner import run_evaluation
+from ir_eval import GoldenQuery, GoldenSet, RetrievedItem
+from ir_eval.runner import run_evaluation
 
 
 class MyAdapter:

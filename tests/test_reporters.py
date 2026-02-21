@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import json
 
-from llm_eval.compare import compare_runs
-from llm_eval.reporters import console as console_reporter
-from llm_eval.reporters import json_reporter
-from llm_eval.reporters import markdown as md_reporter
-from llm_eval.types import DriftResult, DriftSeverity, EvalRun
+from ir_eval.compare import compare_runs
+from ir_eval.reporters import console as console_reporter
+from ir_eval.reporters import json_reporter
+from ir_eval.reporters import markdown as md_reporter
+from ir_eval.types import DriftResult, DriftSeverity, EvalRun
 
 
 class TestMarkdownReporter:

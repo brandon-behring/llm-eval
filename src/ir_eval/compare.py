@@ -4,7 +4,7 @@ Produces per-metric deltas and per-query win/loss/tie analysis.
 For statistical significance, see metrics.confidence and drift.detector.
 
 Usage:
-    from llm_eval.compare import compare_runs
+    from ir_eval.compare import compare_runs
 
     comparison = compare_runs(run_a, run_b)
     for metric, delta in comparison["metric_deltas"].items():
@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from llm_eval.types import EvalRun
+from ir_eval.types import EvalRun
 
 
 def compare_runs(run_a: EvalRun, run_b: EvalRun) -> dict[str, Any]:

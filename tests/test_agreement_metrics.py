@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from llm_eval.metrics.agreement import (
+from ir_eval.metrics.agreement import (
     agreement_rate,
     cohens_kappa,
     confusion_matrix,

@@ -7,9 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from llm_eval.drift.baseline import BaselineStore
-from llm_eval.drift.detector import DriftDetector
-from llm_eval.types import (
+from ir_eval.drift.baseline import BaselineStore
+from ir_eval.drift.detector import DriftDetector
+from ir_eval.types import (
     DriftSeverity,
     EvalRun,
     GoldenQuery,

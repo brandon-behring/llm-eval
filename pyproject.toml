@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "llm-eval"
+name = "ir-eval"
 version = "0.1.0"
 description = "Statistical RAG evaluation framework with golden-set metrics and drift detection"
 readme = "README.md"
@@ -12,7 +12,7 @@ requires-python = ">=3.11"
 authors = [
     { name = "Brandon Behring" },
 ]
-keywords = ["rag", "evaluation", "llm", "retrieval", "metrics", "drift-detection"]
+keywords = ["information-retrieval", "rag", "evaluation", "llm", "retrieval", "metrics", "drift-detection", "ci-cd"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -28,6 +28,11 @@ dependencies = [
     "typer>=0.12",
 ]
 
+[project.urls]
+Homepage = "https://github.com/brandonmbehring-dev/ir-eval"
+Repository = "https://github.com/brandonmbehring-dev/ir-eval"
+Issues = "https://github.com/brandonmbehring-dev/ir-eval/issues"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
@@ -38,17 +43,14 @@ dev = [
 scipy = [
     "scipy>=1.11",
 ]
-research-kb = [
-    "llm-eval-research-kb",
-]
 
 [project.scripts]
-llm-eval = "llm_eval.cli.main:app"
+ir-eval = "ir_eval.cli.main:app"
 
-[project.entry-points."llm_eval.adapters"]
+[project.entry-points."ir_eval.adapters"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/llm_eval", "src/llm_eval_research_kb"]
+packages = ["src/ir_eval", "src/ir_eval_research_kb"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from llm_eval.types import DriftResult, DriftSeverity, EvalRun
+from ir_eval.types import DriftResult, DriftSeverity, EvalRun
 
 
 def report_eval_run(run: EvalRun) -> str:

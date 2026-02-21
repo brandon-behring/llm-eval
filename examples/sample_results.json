@@ -1,0 +1,75 @@
+{
+  "name": "example-rag-v1",
+  "results": [
+    {
+      "query": "d-separation",
+      "retrieved": [
+        {"id": "49ead2d9-5142-4260-ba8c-8932386bd254", "rank": 1, "score": 0.95},
+        {"id": "other-chunk-1", "rank": 2, "score": 0.80},
+        {"id": "0e343da8-f112-4e5e-88ac-c5b5db80611f", "rank": 3, "score": 0.75}
+      ]
+    },
+    {
+      "query": "instrumental variable identification",
+      "retrieved": [
+        {"id": "25c2cee2-acee-4f16-abdc-e56e206e5078", "rank": 1, "score": 0.92},
+        {"id": "4ee739ca-5496-45e7-8c13-51893f32a9a3", "rank": 2, "score": 0.88}
+      ]
+    },
+    {
+      "query": "ARIMA model",
+      "retrieved": [
+        {"id": "other-chunk-2", "rank": 1, "score": 0.85},
+        {"id": "acd07749-a833-4471-86be-ee9e4fd59128", "rank": 2, "score": 0.78}
+      ]
+    },
+    {
+      "query": "Kalman filter",
+      "retrieved": [
+        {"id": "2ae913a8-0e3f-4036-9d87-97377c350700", "rank": 1, "score": 0.91}
+      ]
+    },
+    {
+      "query": "few-shot learning",
+      "retrieved": [
+        {"id": "f933265c-d9c6-4e2d-8613-72605419794a", "rank": 1, "score": 0.93},
+        {"id": "e99e66b1-2cab-4fb1-aa91-ca28a5249f8b", "rank": 2, "score": 0.87}
+      ]
+    },
+    {
+      "query": "scaling laws",
+      "retrieved": [
+        {"id": "other-chunk-3", "rank": 1, "score": 0.82},
+        {"id": "other-chunk-4", "rank": 2, "score": 0.79},
+        {"id": "131b888a-f936-4d96-9f89-6db708729d39", "rank": 3, "score": 0.71}
+      ]
+    },
+    {
+      "query": "A/B testing",
+      "retrieved": [
+        {"id": "bde62d90-d2c7-4297-91bb-f3cf008f75aa", "rank": 1, "score": 0.96}
+      ]
+    },
+    {
+      "query": "sample size calculation",
+      "retrieved": [
+        {"id": "909b141a-9196-4565-9475-891695b4a2cf", "rank": 1, "score": 0.89},
+        {"id": "32a1fabf-a09e-4380-9e9d-165186ad84f5", "rank": 2, "score": 0.84}
+      ]
+    },
+    {
+      "query": "mediation analysis",
+      "retrieved": [
+        {"id": "f657e16b-8d1c-44ba-aa4b-23bb97540b3a", "rank": 1, "score": 0.94},
+        {"id": "ac3d7172-7749-4291-9694-9a081393e500", "rank": 2, "score": 0.86}
+      ]
+    },
+    {
+      "query": "vector autoregression",
+      "retrieved": [
+        {"id": "other-chunk-5", "rank": 1, "score": 0.77},
+        {"id": "9f40c01c-fc32-443c-a591-5c83a41f488b", "rank": 2, "score": 0.73}
+      ]
+    }
+  ]
+}

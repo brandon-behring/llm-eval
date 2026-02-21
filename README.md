@@ -1,29 +1,72 @@
-# llm-eval
+# ir-eval
 
-Statistical RAG evaluation framework with golden-set metrics and drift detection.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 
-> Most RAG systems fail silently. This catches regression before users do.
+Statistical retrieval evaluation framework with golden-set metrics and drift detection.
 
-## Why llm-eval?
+> **ranx** is for papers. **ir-eval** is for CI/CD pipelines.
 
-| Feature | llm-eval | RAGAS | DeepEval |
-|---------|----------|-------|----------|
-| Deterministic (no LLM-as-judge) | Yes | No | No |
-| Per-query statistical tests | Yes | No | No |
-| Bootstrap confidence intervals | Yes | No | No |
-| McNemar/Fisher exact tests | Yes | No | No |
-| Drift detection with severity | Yes | No | Partial |
-| Zero torch/sklearn dependency | Yes | No | No |
-| Golden-set-based | Yes | Optional | Optional |
+Most RAG systems fail silently. ir-eval catches regression before users do — with paired statistical tests, not LLM-as-judge.
 
-## Quick Start
+## Why ir-eval?
+
+| Feature | ir-eval | RAGAS | DeepEval | ranx |
+|---------|---------|-------|----------|------|
+| Deterministic (no LLM-as-judge) | Yes | No | No | Yes |
+| Results-first (no infra needed) | Yes | No | No | Yes |
+| Paired statistical tests | Yes | No | No | No |
+| Bootstrap confidence intervals | Yes | No | No | No |
+| Drift detection with severity | Yes | No | Partial | No |
+| CI/CD exit codes | Yes | No | Partial | No |
+| Zero torch/sklearn dependency | Yes | No | No | No |
+
+## Quick Start — Results-First (Primary Path)
+
+Export your retrieval system's results to JSON, then evaluate:
+
+```bash
+# 1. Validate your golden set
+ir-eval validate golden.json
+
+# 2. Evaluate pre-computed results
+ir-eval evaluate results.json --golden golden.json
+
+# 3. Set baseline
+ir-eval baseline set run_output.json --notes "v1.0"
+
+# 4. Detect drift in CI
+ir-eval evaluate new_results.json --golden golden.json --output new_run.json
+ir-eval drift golden.json --adapter my-adapter --exit-code
+```
+
+**results.json** format:
+
+```json
+{
+    "name": "my-rag-v2",
+    "results": [
+        {
+            "query": "instrumental variables",
+            "retrieved": [
+                {"id": "chunk_123", "rank": 1, "score": 0.95},
+                {"id": "chunk_456", "rank": 2, "score": 0.82}
+            ]
+        }
+    ]
+}
+```
+
+## Quick Start — Adapter (Live Evaluation)
+
+For live evaluation against a running retrieval system:
 
 ```python
-from llm_eval import GoldenSet, RetrievedItem
-from llm_eval.runner import run_evaluation
+from ir_eval import GoldenSet, RetrievedItem
+from ir_eval.runner import run_evaluation
 
 # 1. Load your golden set
-golden = GoldenSet.from_json("golden_queries.json")
+golden = GoldenSet.from_json("golden.json")
 
 # 2. Implement the adapter protocol (2 methods)
 class MyAdapter:
@@ -46,29 +89,10 @@ print(f"NDCG@k:   {run.metrics['ndcg_at_k']:.3f}")
 ## Installation
 
 ```bash
-pip install llm-eval
+pip install ir-eval
 
 # With optional scipy (faster Fisher exact test)
-pip install llm-eval[scipy]
-```
-
-## CLI
-
-```bash
-# Validate a golden set
-llm-eval validate golden_queries.json
-
-# Run evaluation
-llm-eval run golden_queries.json --adapter my-adapter --top-k 10
-
-# Set baseline
-llm-eval baseline set results.json --notes "v1.0 release"
-
-# Detect drift (exits 1 on critical regression)
-llm-eval drift golden_queries.json --adapter my-adapter --exit-code
-
-# Compare two runs
-llm-eval compare run_a.json run_b.json --format markdown
+pip install "ir-eval[scipy]"
 ```
 
 ## Metrics
@@ -80,10 +104,6 @@ llm-eval compare run_a.json run_b.json --format markdown
 - **Precision@k**: Fraction of top-k results that are relevant
 - **MAP** (Mean Average Precision): Area under precision-recall curve
 
-### Agreement Metrics
-- **Cohen's Kappa**: Chance-corrected inter-rater agreement
-- **Weighted Kappa**: Ordinal-aware agreement (linear/quadratic weights)
-
 ### Statistical Tests
 - **Bootstrap CI**: Non-parametric confidence intervals for any metric
 - **Paired permutation test**: Compare two systems on the same queries
@@ -92,7 +112,7 @@ llm-eval compare run_a.json run_b.json --format markdown
 
 ### Drift Detection
 - Compares current run against a stored baseline
-- Per-metric severity classification:
+- 2D severity classification (magnitude x statistical significance):
   - **INFO**: No significant change
   - **WARNING**: >5% drop AND p < 0.10
   - **CRITICAL**: >10% drop AND p < 0.05
@@ -101,9 +121,9 @@ llm-eval compare run_a.json run_b.json --format markdown
 
 The key design choice: **per-query metric storage enables paired tests**.
 
-Most evaluation frameworks only store aggregate metrics. This means comparing
-two systems requires unpaired tests (chi-squared, two-sample z-test) that are
-far less powerful. By storing per-query results, llm-eval enables:
+Most evaluation frameworks store only aggregate metrics, forcing unpaired tests
+(chi-squared, two-sample z-test) that are far less powerful. By storing per-query
+results, ir-eval enables:
 
 1. **Paired permutation test** for continuous metrics (MRR, NDCG) — no
    distributional assumptions, exact p-values
@@ -115,24 +135,48 @@ far less powerful. By storing per-query results, llm-eval enables:
 ## Architecture
 
 ```
-Golden Set ─→ Adapter ─→ Runner ─→ EvalRun ─→ Reporter
-                                      │
-                                      ├─→ Baseline Store
-                                      └─→ Drift Detector ─→ Alerts
+Results JSON ─→ Runner ─→ EvalRun ─→ Reporter
+Golden Set ──┘              │
+                            ├─→ Baseline Store
+                            └─→ Drift Detector ─→ Alerts (exit codes)
 ```
 
-Adapters implement a simple sync Protocol (2 methods). See [docs/design.md](docs/design.md).
+Two evaluation paths:
+- **Results-first** (primary): Load pre-computed results from JSON — no infrastructure needed
+- **Adapter** (live): Implement a 2-method Protocol for live retrieval
+
+See [docs/design.md](docs/design.md) for details.
 
 ## CI Integration
 
 ```yaml
 # .github/workflows/eval.yml
-- name: Run RAG evaluation
-  run: llm-eval drift golden.json --adapter my-adapter --exit-code
+- name: Evaluate retrieval quality
+  run: ir-eval evaluate results.json --golden golden.json --output run.json
+
+- name: Check for drift
+  run: ir-eval drift golden.json --adapter my-adapter --exit-code
 ```
 
 The `--exit-code` flag exits 1 on CRITICAL drift, failing your CI pipeline
 when retrieval quality regresses significantly.
+
+## CLI Reference
+
+```bash
+ir-eval evaluate results.json --golden golden.json   # Primary: evaluate pre-computed results
+ir-eval run golden.json --adapter name               # Live: evaluate via adapter
+ir-eval validate golden.json                          # Validate golden set structure
+ir-eval compare run_a.json run_b.json                 # Compare two runs side-by-side
+ir-eval drift golden.json --adapter name --exit-code  # Detect regression from baseline
+ir-eval baseline set run.json --notes "v1.0"          # Set baseline for drift detection
+ir-eval baseline show golden-set-name                 # Show current baseline
+ir-eval history golden-set-name                       # Show baseline history
+```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 
 ## License
 
