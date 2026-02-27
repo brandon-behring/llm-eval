@@ -6,7 +6,7 @@ Thank you for your interest in contributing to ir-eval!
 
 ```bash
 # Clone the repository
-git clone https://github.com/brandonmbehring-dev/ir-eval.git
+git clone https://github.com/brandon-behring/llm-eval.git
 cd ir-eval
 
 # Install in development mode

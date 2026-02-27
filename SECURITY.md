@@ -11,7 +11,7 @@
 We take security vulnerabilities seriously. If you discover a security issue,
 please report it through GitHub's private vulnerability reporting feature:
 
-1. Go to the [Security Advisories](https://github.com/brandonmbehring-dev/ir-eval/security/advisories) page
+1. Go to the [Security Advisories](https://github.com/brandon-behring/llm-eval/security/advisories) page
 2. Click "Report a vulnerability"
 3. Fill out the form with details about the vulnerability
 

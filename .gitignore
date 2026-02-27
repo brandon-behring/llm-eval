@@ -18,3 +18,9 @@ htmlcov/
 venv/
 *.so
 .env
+
+# Security - secrets and credentials
+*.key
+*.pem
+*credentials*
+*.secret

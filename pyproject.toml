@@ -29,9 +29,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/brandonmbehring-dev/ir-eval"
-Repository = "https://github.com/brandonmbehring-dev/ir-eval"
-Issues = "https://github.com/brandonmbehring-dev/ir-eval/issues"
+Homepage = "https://github.com/brandon-behring/llm-eval"
+Repository = "https://github.com/brandon-behring/llm-eval"
+Issues = "https://github.com/brandon-behring/llm-eval/issues"
 
 [project.optional-dependencies]
 dev = [
