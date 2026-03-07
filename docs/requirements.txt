@@ -9,7 +9,7 @@ sphinx-autodoc-typehints>=2.0
 furo>=2024.1
 
 # Markdown + Notebooks
-myst-parser>=2.0,<4.0
+myst-parser>=2.0,<6.0
 myst-nb>=1.0,<2.0
 
 # Extras
