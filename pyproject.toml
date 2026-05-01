@@ -29,6 +29,7 @@ dependencies = [
     "matplotlib>=3.8",
     "scikit-learn>=1.4",
     "datasets>=2.0",
+    "torch>=2.0",
 ]
 
 [project.optional-dependencies]
@@ -38,7 +39,6 @@ dev = [
     "jupyter>=1.0",
     "ipykernel>=6.29",
 ]
-torch = ["torch>=2.0"]
 
 [project.urls]
 Homepage = "https://github.com/brandon-behring/llm-eval"
