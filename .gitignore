@@ -11,3 +11,7 @@ dist/
 build/
 .env
 .DS_Store
+
+# Notebook judge-response caches — see notebooks/cache/.gitkeep
+notebooks/cache/*
+!notebooks/cache/.gitkeep
