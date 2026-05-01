@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "llm-eval"
+version = "0.0.1"
+description = "LLM/judge evaluation lab: calibration, drift detection, cost-asymmetric verifier evaluation"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [
+    { name = "Brandon Behring" },
+]
+keywords = ["llm", "judge", "evaluation", "calibration", "drift-detection", "verifier", "ai-safety"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "anthropic>=0.40",
+    "numpy>=1.26",
+    "pandas>=2.1",
+    "matplotlib>=3.8",
+    "scikit-learn>=1.4",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.4",
+    "jupyter>=1.0",
+    "ipykernel>=6.29",
+]
+torch = ["torch>=2.0"]
+
+[project.urls]
+Homepage = "https://github.com/brandon-behring/llm-eval"
+Repository = "https://github.com/brandon-behring/llm-eval"
+Issues = "https://github.com/brandon-behring/llm-eval/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/llm_eval"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B"]
+ignore = ["E501"]
