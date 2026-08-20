@@ -1,3 +1,9 @@
+> **ARCHIVED (2026-08-19).** This early LLM-evaluation notebook project is superseded by
+> [eval-toolkit](https://github.com/brandon-behring/eval-toolkit) (the maintained evaluation
+> library — bootstrap CIs, leakage checks, versioned schemas, PyPI) and
+> [ir-eval](https://github.com/brandon-behring/ir-eval) (statistical retrieval evaluation for
+> CI/CD). Kept for provenance; the status table below reflects May 2026 and is not maintained.
+
 # llm-eval
 
 LLM/judge evaluation lab: calibration, drift detection on judge outputs, and cost-asymmetric verifier evaluation.
